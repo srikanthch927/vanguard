@@ -1,0 +1,88 @@
+Okay, let's add the AWS Glue job status to your Splunk dashboard, which you are building using the XML source code. You'll likely want to display the current or the last run status of the job. Here's how you can do it by adding a new panel to your dashboard:
+
+Adding a Panel to Display Glue Job Status:
+
+You'll need to add a new <panel> within a <row> element in your Splunk dashboard XML. Inside this panel, you'll create a <single> visualization to display the status.
+
+Here's the XML code you can add:
+
+XML
+
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Current/Last Run Status</title>
+      <single>
+        <search>
+          <query>index=aws_glue
+| where awsAccountId="$account$" AND jobName="$job$"
+| stats latest(_time) as latest_time, latest(jobRunState) as jobRunState by jobRunId
+| rename latest_time as _time, jobRunState as Status
+| sort -_time
+| head 1
+| fields Status</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendline">0</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">medium</option>
+        <option name="unit"></option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useNull">0</option>
+        <option name="valueFormat">""</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="style.fontSize">24px</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    </row>
+</form>
+Explanation of the New Code:
+
+<row>: This creates a new row in your dashboard layout to contain the status panel. You can adjust the layout by placing this panel in an existing row if desired.
+<panel>: This defines a new panel within the row.
+<title>Current/Last Run Status</title>: Sets the title of this panel.
+<single>: This is the visualization type we're using to display a single key value (the job status).
+<search>: Defines the Splunk search to retrieve the job status.
+<query>: The Splunk Search Processing Language (SPL) query:
+index=aws_glue: Searches the index where your AWS Glue logs are stored. Make sure this is the correct index name.
+| where awsAccountId="$account$" AND jobName="$job$": Filters the logs to the specific AWS account and Glue job selected by the dashboard's input controls (using the tokens you defined earlier).
+| stats latest(_time) as latest_time, latest(jobRunState) as jobRunState by jobRunId: Groups the logs by jobRunId and gets the latest timestamp (latest_time) and the latest job run state (jobRunState).
+| rename latest_time as _time, jobRunState as Status: Renames the fields for clarity.
+| sort -_time: Sorts the results by the latest timestamp in descending order to get the most recent run first.
+| head 1: Takes only the first result, which represents the latest job run.
+| fields Status: Selects only the Status field to be displayed.
+<earliest>$field1.earliest$</earliest>: Uses the time range selected in your TimeFrame input.
+<latest>$field1.latest$</latest>: Uses the time range selected in your TimeFrame input.
+<option ...>: These elements configure the appearance of the single value visualization:
+colorBy, colorMode, rangeColors, rangeValues: You can customize the color based on the status (e.g., green for SUCCEEDED, yellow for RUNNING, red for FAILED). You'll need to adjust the rangeValues to correspond to numerical representations of your status values if you choose to color by value. Since status is text, you might need to get creative or use a different approach for coloring based on text.
+drilldown="none": Disables drilldown functionality.
+showSparkline, showTrendline, trellis.enabled, trellis.size, unit, unitPosition, useColors, useNull, valueFormat: Standard options for single value visualizations.
+refresh.display="progressbar": Shows a progress bar during data refresh.
+style.fontSize="24px": Sets a larger font size for better visibility of the status.
+How to Integrate this into your Existing XML:
+
+Locate the closing </fieldset> tag in your existing XML code.
+Insert the new <row> and <panel> block (provided above) after the </fieldset> tag and before the final </form> tag.
+You can adjust the placement of this new row to control where the status panel appears on your dashboard (e.g., you might want it in the first row).
+Customizing Status Colors (More Advanced):
+
+To color the status based on its text value (e.g., "SUCCEEDED" as green, "FAILED" as red), you would typically use JavaScript and CSS within a <html> panel or a custom visualization. This is more complex than the basic <single> options. However, for a simple display of the status text, the above code will work.
+
+Important Considerations:
+
+index=aws_glue: Ensure that aws_glue is the correct Splunk index where your AWS Glue job logs are being ingested. If it's different, replace it with the correct index name.
+awsAccountId="$account$" and jobName="$job$": This assumes you have the $account$ and $job$ tokens set up correctly in your input controls as shown in your previous code.
+Status Values: The jobRunState field can have various values (e.g., STARTING, RUNNING, SUCCEEDED, FAILED, STOPPING, STOPPED). The query above will display the latest status of the selected job.
+By adding this panel to your Splunk dashboard XML, you will now have a visual representation of the current or last run status of your AWS Glue jobs. Remember to save the changes to your dashboard XML in Splunk.
+
+Generate code to prototype this with Canvas

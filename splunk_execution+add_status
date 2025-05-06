@@ -1,0 +1,38 @@
+</panel>
+  </row>
+  <row>
+    <panel>
+      <title>Current/Last Run Status</title>
+      <single>
+        <search>
+          <query>index=aws_glue
+| where awsAccountId="$account$" AND jobName="$job$"
+| stats latest(_time) as latest_time, latest(jobRunState) as jobRunState by jobRunId
+| rename latest_time as _time, jobRunState as Status
+| sort -_time
+| head 1
+| fields Status</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="showSparkline">0</option>
+        <option name="showTrendline">0</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.size">medium</option>
+        <option name="unit"></option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useNull">0</option>
+        <option name="valueFormat">""</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="style.fontSize">24px</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    </row>
+</form>

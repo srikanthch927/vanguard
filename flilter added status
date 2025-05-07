@@ -1,0 +1,94 @@
+<form version="1.1" theme="dark">
+  <label>Client Merge Execution batch jobs</label>
+  <description>This Dashboard is Designed for Batch Job Progress of Client Merge Execution.</description>
+  <init>
+    <set token="account">vgl-retailgenerali-$awsEnvironment$</set>
+  </init>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="field1">
+      <label>TimeFrame</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="awsEnvironment">
+      <label>Environment</label>
+      <choice value="eng">ENG</choice>
+      <choice value="test">TEST</choice>
+      <choice value="prod">PROD</choice>
+      <default>prod</default>
+      <initialValue>prod</initialValue>
+    </input>
+    <input type="dropdown" token="job">
+      <label>JOB</label>
+      <choice value="mt9-client-merge-execution-batch-control-glue">mt9-client-merge-execution-batch-control-glue</choice>
+      <default>mt9-client-merge-execution-batch-control-glue</default>
+      <initialValue>mt9-client-merge-execution-batch-control-glue</initialValue>
+      <change>
+        <condition value="mt9-client-merge-execution-batch-control-glue">
+          <set token="BatchSourceType">/aws/mt9-client-merge</set>
+          <set token="Extract">true</set>
+          <unset token="Matching"></unset>
+          <unset token="Merge"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="RunStatus">
+      <label>Status</label>
+      <choice value="SUCCEEDED">SUCCEEDED</choice>
+      <choice value="Stopped">FAILED</choice>
+      <default>SUCCEEDED</default>
+      <initialValue>SUCCEEDED</initialValue>
+    </input>
+  </fieldset>
+
+  <row depends="$hide$">
+    <panel>
+      <html>
+        <style>
+          table1 td:nth-child(2),
+          table2 td:nth-child(2),
+          table3 td:nth-child(2){
+            width: 200px !important;
+            overflow-wrap: anywhere !important;
+          }
+          table1 td:nth-child(1),
+          table2 td:nth-child(1),
+          table3 td:nth-child(1){
+            width: 150px !important;
+            overflow-wrap: anywhere !important;
+          }
+        </style>
+      </html>
+    </panel>
+  </row>
+
+  <row>
+    <panel depends="$Extract$">
+      <title>Job Statistics</title>
+      <table>
+        <search>
+          <query>
+            index="aws_retail_$awsEnvironment$"
+            source="$BatchSourceType$"
+            "$RunStatus$"
+            | rex field=_raw "\|(?&lt;targetclientid&gt;[^\|]*)&lt;\|(?&lt;sourceclientid&gt;[^\|]*)&lt;\|(?&lt;mergestatus&gt;[^\|]*)&lt;\|(?&lt;mergebypassrule&gt;[^\|]*)&lt;\|(?&lt;lastmodifiedby&gt;[^\|]*)&lt;\|(?&lt;lastmodifieddatetime&gt;[^\|]*)&lt;\|(?&lt;crewpoid&gt;[^\|]*)&lt;\|(?&lt;clientmergeguid&gt;[^\|]*)&lt;\|(?&lt;mergegroupuuid&gt;[^\|]*)&lt;\|"
+            | table _time, targetclientid, sourceclientid, mergestatus, mergebypassrule, lastmodifiedby, lastmodifieddatetime, crewpoid, clientmergeguid, mergegroupuuid
+          </query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">3</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

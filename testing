@@ -1,0 +1,3 @@
+index="aws_retail_$awsEnvironment$"
+| rex field=_raw "\|(?<targetclientid>\d+)\s+\|\s*(?<sourceclientid>\d+)\s+\|\s*(?<mergestatus>\w*)\s*\|\s*(?<mergebypassrule>\w*)\s*\|\s*(?<lastmodifiedby>\w*)\s*\|\s*(?<lastmodifieddatetime>[\d\-:\s]+)\s*\|\s*(?<crewpoid>\d*)\s*\|\s*(?<clientmergeguid>[a-fA-F0-9\-]+)?\s*\|\s*(?<mergegroupuuid>[a-fA-F0-9\-]+)?\s*\|"
+| table _time, targetclientid, sourceclientid, mergestatus, mergebypassrule, lastmodifiedby, lastmodifieddatetime, crewpoid, clientmergeguid, mergegroupuuid

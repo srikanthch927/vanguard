@@ -9,3 +9,8 @@ index="aws_retail_$awsEnvironment$"
 | rex field=_raw "\|(?<targetclientid>[^\|]*)\|(?<sourceclientid>[^\|]*)\|(?<mergestatus>[^\|]*)\|(?<mergebypassrule>[^\|]*)\|(?<lastmodifiedby>[^\|]*)\|(?<lastmodifieddatetime>[^\|]*)\|(?<crewpoid>[^\|]*)\|(?<clientmergeguid>[^\|]*)\|(?<mergegroupuuid>[^\|]*)\|"
 | table _time, targetclientid, sourceclientid, mergestatus, mergebypassrule, lastmodifiedby, lastmodifieddatetime, crewpoid, clientmergeguid, mergegroupuuid
 
+
+
+index="aws_retail_$awsEnvironment$" "client merge trigger records retrieved"
+| rex field=_raw "client merge trigger records retrieved: (?<records_retrieved>\d+)"
+| stats max(records_retrieved) AS "Records Retrieved"

@@ -14,3 +14,9 @@ index="aws_retail_$awsEnvironment$"
 index="aws_retail_$awsEnvironment$" "client merge trigger records retrieved"
 | rex field=_raw "client merge trigger records retrieved: (?<records_retrieved>\d+)"
 | stats max(records_retrieved) AS "Records Retrieved"
+
+
+
+index="aws_glue" sourcetype="aws:cloudwatchlogs"
+| rex "status\s*=\s*(?<status>\w+)"
+| search status="FAILED"

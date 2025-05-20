@@ -20,3 +20,11 @@ index="aws_retail_$awsEnvironment$" "client merge trigger records retrieved"
 index="aws_glue" sourcetype="aws:cloudwatchlogs"
 | rex "status\s*=\s*(?<status>\w+)"
 | search status="FAILED"
+
+
+
+index=your_index_name sourcetype=your_sourcetype
+| rex "'RetryAttempts':\s*(?<RetryAttempts>\d+)"
+| eval RetryAttempts = tonumber(RetryAttempts)
+| eventstats sum(RetryAttempts) as total_retryattempts
+| table _time RetryAttempts total_retryattempts
